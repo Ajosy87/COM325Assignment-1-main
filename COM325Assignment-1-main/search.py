@@ -19,6 +19,7 @@ Pacman agents (in searchAgents.py).
 
 import util
 
+
 class SearchProblem:
     """
     This class outlines the structure of a search problem, but doesn't implement
@@ -70,7 +71,8 @@ def tinyMazeSearch(problem):
     from game import Directions
     s = Directions.SOUTH
     w = Directions.WEST
-    return  [s, s, w, s, w, w, s, w]
+    return [s, s, w, s, w, w, s, w]
+
 
 def depthFirstSearch(problem):
     """
@@ -189,13 +191,42 @@ def nullHeuristic(state, problem=None):
     """
     return 0
 
+
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    # Bdf uses the Queue to store its visted states which is FIFO
+    # initialising the process from a start node
+    search_maze = problem.getStartState()
+    if problem.isGoalState(search_maze):
+        return []
 
+    # store the visited state
+    seen = []
+
+    que = util.PriorityQueue()
+    # ((coordinate/node , path to current node , cost to current node),priority)
+    que.push((search_maze, [], 0), 0)
+
+    while not que.isEmpty():
+        # popping nodes with small estimated cost
+        state, paths, prevCost = que.pop()
+
+        # putting visited nodes in open list
+        if state not in seen:
+            seen.append(state)
+
+            # putting the visited node in closed list
+            if problem.isGoalState(state):
+                return paths
+
+            for nextNode, path, cost in problem.getSuccessors(state):
+                new_transition = paths + [path]
+                new_node_cost = prevCost + cost
+                heuristic_cost = new_node_cost + heuristic(nextNode, problem)
+                que.push((nextNode, new_transition, new_node_cost), heuristic_cost)
 
     util.raiseNotDefined()
+
 
 
 # Abbreviations
