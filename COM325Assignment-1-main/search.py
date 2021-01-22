@@ -46,17 +46,17 @@ class SearchProblem:
           state: Search state
 
         For a given state, this should return a list of triples, (successor,
-        action, stepCost), where 'successor' is a successor to the current
-        state, 'action' is the action required to get there, and 'stepCost' is
+        path, stepCost), where 'successor' is a successor to the current
+        state, 'path' is the path required to get there, and 'stepCost' is
         the incremental cost of expanding to that successor.
         """
         util.raiseNotDefined()
 
-    def getCostOfActions(self, actions):
+    def getCostOfpaths(self, paths):
         """
-         actions: A list of actions to seen
+         paths: A list of paths to seen
 
-        This method returns the total cost of a particular sequence of actions.
+        This method returns the total cost of a particular sequence of paths.
         The sequence must be composed of legal moves.
         """
         util.raiseNotDefined()
@@ -76,7 +76,7 @@ def depthFirstSearch(problem):
     """
     Search the deepest nodes in the search search_maze first.
 
-    Your search algorithm needs to return a list of actions that reaches the
+    Your search algorithm needs to return a list of paths that reaches the
     goal. Make sure to implement a graph search algorithm.
 
     To get started, you might want to try some of these simple commands to
@@ -120,6 +120,7 @@ def depthFirstSearch(problem):
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search search_maze first."""
     "*** YOUR CODE HERE ***"
+    # Bdf uses the Queue to store its visted states which is FIFO
     from util import Queue
     from game import Directions
 
@@ -149,7 +150,37 @@ def breadthFirstSearch(problem):
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
+    # initialising the process from a start node
+    search_maze = problem.getStartState()
+    if problem.isGoalState(search_maze):
+        return []
+
+    # store the visited state
+    seen = []
+
+    # pushing into open list
+    que = util.PriorityQueue()
+    # ((coordinate/node , path to current node , cost to current node),priority)
+    que.push((search_maze, [], 0), 0)
+
+    while not que.isEmpty():
+
+        # popping from open list
+        state, paths, prevCost = que.pop()
+        if state not in seen:
+            seen.append(state)
+
+            # states with small cost processed
+            if problem.isGoalState(state):
+                return paths
+
+            # comparing path with small total cost and being added to closed list until the goal is reached
+            for next_state, path, cost in problem.getSuccessors(state):
+                new_transition = paths + [path]
+                priority = prevCost + cost
+                que.push((next_state, new_transition, priority), priority)
     util.raiseNotDefined()
+
 
 def nullHeuristic(state, problem=None):
     """
@@ -162,30 +193,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
     # Bdf uses the Queue to store its visted states which is FIFO
-    from util import PriorityQueue
-    from game import Directions
 
-    # the component of search_maze is ((state, the path to the state), priority)
-    search_maze = PriorityQueue()
-    search_maze.push((problem.getStartState(), []), 0)
-
-    # store the visited position
-    seen = []
-
-    while (not search_maze.isEmpty()):
-        (state, path) = search_maze.pop()
-        if (problem.isGoalState(state)):
-            break
-
-        successors = problem.getSuccessors(state)
-        for i in successors:
-            if (i[0] not in seen):  # the state is visited once
-                seen.append(i[0])
-                search_maze.push((i[0], path + [i[1]]), i[2] + heuristic(i[0], problem))
-
-    return path
-
-    util.raiseNotDefined()
 
     util.raiseNotDefined()
 
