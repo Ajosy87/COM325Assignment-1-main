@@ -120,7 +120,31 @@ def depthFirstSearch(problem):
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search search_maze first."""
     "*** YOUR CODE HERE ***"
+    from util import Queue
+    from game import Directions
+
+    # the component of search_maze is (state, the path to the state)
+    search_maze = Queue()
+    search_maze.push(((problem.getStartState()), []))
+
+    # store the visited state
+    seen = []
+
+    while (not search_maze.isEmpty()):
+        (state, path) = search_maze.pop()
+        if (problem.isGoalState(state)):
+            break
+
+        successors = problem.getSuccessors(state)
+        for i in successors:
+            if (i[0] not in seen):  # the state is visited once
+                seen.append(i[0])
+                search_maze.push((i[0], path + [i[1]]))
+
+    return path
+
     util.raiseNotDefined()
+
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
@@ -137,6 +161,7 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
+    # Bdf uses the Queue to store its visted states which is FIFO
     from util import PriorityQueue
     from game import Directions
 
@@ -154,7 +179,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
 
         successors = problem.getSuccessors(state)
         for i in successors:
-            if (i[0] not in seen):  # any state has been seen doesn't need to be seen again
+            if (i[0] not in seen):  # the state is visited once
                 seen.append(i[0])
                 search_maze.push((i[0], path + [i[1]]), i[2] + heuristic(i[0], problem))
 
